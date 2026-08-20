@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sabores & Co. — Menú Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#fef6ee', 500: '#e2691c', 600: '#c8551a', 700: '#a54318' },
+            ink: '#1c1917',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    html { scroll-behavior: smooth; }
+
+    /* Animaciones del carrito */
+    @keyframes animar-badge { 0%{transform:scale(1)} 30%{transform:scale(1.6)} 100%{transform:scale(1)} }
+    @keyframes card-pop     { 0%{transform:scale(1)} 40%{transform:scale(0.98)} 70%{transform:scale(1.03)} 100%{transform:scale(1)} }
+    @keyframes row-in       { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+    @keyframes btn-pulse    { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
+    @keyframes spinner-rot  { to{transform:rotate(360deg)} }
+
+    .animar-badge { animation: animar-badge .4s ease; }
+    .animar-card  { animation: card-pop .4s ease; }
+    .animar-row   { animation: row-in .3s ease; }
+    .animar-btn   { animation: btn-pulse .4s ease; }
+    .spinner {
+      width: 13px; height: 13px; display: inline-block;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spinner-rot .6s linear infinite;
+      vertical-align: -2px;
+    }
+  </style>
+</head>
+<body class="bg-orange-50 min-h-screen text-ink antialiased">
+
+  <!-- ENCABEZADO -->
+  <header class="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 text-white pb-24 pt-10 px-5 rounded-b-[2.5rem] shadow-lg">
+    <div class="max-w-5xl mx-auto flex flex-col items-center text-center gap-3">
+      <div class="w-20 h-20 rounded-full bg-white/15 backdrop-blur border border-white/30 flex items-center justify-center text-4xl shadow-inner">
+        🍽️
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight">Sabores &amp; Co.</h1>
+      <p class="text-sm text-orange-100/90 max-w-xs leading-relaxed">
+        Cocina de autor con ingredientes frescos. Descubre nuestras especialidades y pide en segundos.
+      </p>
+    </div>
+  </header>
+
+  <!-- NAVEGACIÓN POR CATEGORÍAS -->
+  <nav class="sticky top-4 z-20 px-4 -mt-12">
+    <div id="categorias" class="max-w-5xl mx-auto bg-white/90 backdrop-blur rounded-2xl shadow-lg shadow-orange-900/10 p-2 flex gap-2 overflow-x-auto no-scrollbar">
+      <button data-categoria="todas" class="categoria-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white shadow">
+        Todas
+      </button>
+      <button data-categoria="entradas" class="categoria-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-600 hover:bg-orange-100 transition">
+        Entradas
+      </button>
+      <button data-categoria="platos" class="categoria-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-600 hover:bg-orange-100 transition">
+        Platos Fuertes
+      </button>
+      <button data-categoria="bebidas" class="categoria-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-600 hover:bg-orange-100 transition">
+        Bebidas
+      </button>
+      <button data-categoria="postres" class="categoria-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-600 hover:bg-orange-100 transition">
+        Postres
+      </button>
+    </div>
+  </nav>
+
+  <!-- CUADRÍCULA DE PRODUCTOS -->
+  <main class="max-w-5xl mx-auto px-5 py-8">
+    <div class="flex items-baseline justify-between mb-5">
+      <h2 id="titulo-categoria" class="text-xl font-bold text-stone-800">Todo el menú</h2>
+      <span id="contador" class="text-sm text-stone-500"></span>
+    </div>
+
+    <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+  </main>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 transition-all duration-300 bg-ink text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl z-50 whitespace-nowrap">
+  </div>
+
+  <!-- BOTÓN FLOTANTE DEL CARRITO -->
+  <button id="btn-carrito"
+    class="fixed bottom-5 right-5 z-40 flex items-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-95 transition text-white pl-4 pr-5 py-3.5 rounded-full shadow-2xl shadow-brand-700/40">
+    <span class="relative">
+      🛒
+      <span id="badge-carrito"
+        class="absolute -top-2.5 -right-3 min-w-5 h-5 px-1 flex items-center justify-center bg-ink text-white text-[11px] font-bold rounded-full transition-all">0</span>
+    </span>
+    <span class="text-sm font-extrabold" id="total-flotante">0,00 €</span>
+  </button>
+
+  <!-- PANEL DEL CARRITO -->
+  <div id="panel-carrito" class="fixed inset-0 z-50 pointer-events-none">
+    <div class="backdrop absolute inset-0 bg-ink/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div class="absolute bottom-0 inset-x-0 mx-auto max-w-lg bg-white rounded-t-3xl shadow-2xl translate-y-full transition-transform duration-300 pointer-events-auto flex flex-col max-h-[85vh]">
+      <div class="p-4 pb-2 border-b border-orange-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-stone-800">Tu Pedido 🛒</h3>
+          <button id="cerrar-carrito" class="w-9 h-9 rounded-full bg-orange-100 hover:bg-orange-200 transition text-stone-600 font-bold">✕</button>
+        </div>
+        <span id="total-panel-items" class="text-xs text-stone-500">0 productos</span>
+      </div>
+
+      <div id="items-carrito" class="flex-1 overflow-y-auto px-5"></div>
+
+      <div class="p-5 pt-4 border-t border-orange-100 bg-orange-50/60 rounded-b-3xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+          <input id="input-nombre" type="text" placeholder="👤 Tu nombre" maxlength="60"
+            class="w-full bg-white border border-orange-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+          <input id="input-mesa" type="text" placeholder="📍 Mesa / Dirección" maxlength="60"
+            class="w-full bg-white border border-orange-200 rounded-xl px-3.5 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" />
+        </div>
+        <p class="text-xs font-semibold text-stone-500 mb-2">💳 Método de pago</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          <label class="cursor-pointer">
+            <input type="radio" name="metodo-pago" value="Efectivo" class="peer sr-only" checked />
+            <span class="flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-600 bg-white border border-orange-200 rounded-xl px-2 py-2.5 transition peer-checked:bg-brand-600 peer-checked:text-white peer-checked:border-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500">💵 Efectivo</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="metodo-pago" value="Tarjeta" class="peer sr-only" />
+            <span class="flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-600 bg-white border border-orange-200 rounded-xl px-2 py-2.5 transition peer-checked:bg-brand-600 peer-checked:text-white peer-checked:border-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500">💳 Tarjeta</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="metodo-pago" value="Transferencia" class="peer sr-only" />
+            <span class="flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-600 bg-white border border-orange-200 rounded-xl px-2 py-2.5 transition peer-checked:bg-brand-600 peer-checked:text-white peer-checked:border-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500">🏦 Transferencia</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="metodo-pago" value="Otro" class="peer sr-only" />
+            <span class="flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-600 bg-white border border-orange-200 rounded-xl px-2 py-2.5 transition peer-checked:bg-brand-600 peer-checked:text-white peer-checked:border-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500">✏️ Otro</span>
+          </label>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-stone-500 font-medium">Total</span>
+          <span id="total-panel" class="text-2xl font-extrabold text-brand-600">0,00 €</span>
+        </div>
+        <button id="btn-whatsapp"
+          class="w-full bg-brand-600 hover:bg-brand-700 active:scale-[0.98] transition text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-700/30">
+          Confirmar pedido por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
