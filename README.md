@@ -17,7 +17,7 @@ Aplicación web móvil e interactiva para la visualización de cartas de restaur
 
 * 📧 **Correo electrónico:** franshescoa10@gmail.com
 * 📱 **WhatsApp Directo:** [+504 8880-4253](https://wa.me/50488804253)
-* 🌐 **Demostración en vivo:** *(Pega aquí la URL de Netlify o Vercel cuando la tengas)*
+* 🌐 **Demostración en vivo:** *(menu-digital-restaurant-2u37624oy-franshescoa10-9396s-projects.vercel.app)*
 
 # 🍽️ Interactive Digital Menu for Restaurants
 
@@ -38,4 +38,4 @@ Do you own a restaurant, café, or food business and want your own custom digita
 
 * 📧 **Email:** franshescoa10@gmail.com
 * 📱 **Direct WhatsApp:** [+504 8880-4253](https://wa.me/50488804253)
-* 🌐 **Live Demo:** *(Paste your Netlify or Vercel URL here once published)*
+* 🌐 **Live Demo:** *(menu-digital-restaurant-2u37624oy-franshescoa10-9396s-projects.vercel.app)*
